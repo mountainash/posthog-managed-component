@@ -1,0 +1,24 @@
+{
+  "name": "Postman",
+  "namespace": "postman",
+  "description": "A managed component for Postman analytics",
+  "icon": "assets/icon.svg",
+  "permissions": {
+    "access_client_kv": {
+      "description": "This permission is used to facilitate better a user experience.",
+      "required": true
+    },
+    "server_network_requests": {
+      "description": "This permission is used to facilitate better a user experience.",
+      "required": true
+    },
+    "serve_static_files": {
+      "description": "This permission is used to facilitate better a user experience.",
+      "required": true
+    },
+    "provide_server_functionality": {
+      "description": "This permission is used to facilitate better a user experience.",
+      "required": true
+    }
+  }
+}
