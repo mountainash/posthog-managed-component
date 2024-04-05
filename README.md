@@ -1,6 +1,6 @@
 # PostHog Managed Component
 
-> A managed component for Postman analytics
+> A managed component for PostHog analytics
 
 Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/) (it's OSS so hopefully more use cases will come).
 

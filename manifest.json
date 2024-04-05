@@ -1,11 +1,11 @@
 {
-  "name": "Postman",
-  "namespace": "postman",
-  "description": "A managed component for Postman analytics",
+  "name": "PostHog",
+  "namespace": "posthog",
+  "description": "A managed component for PostHog analytics",
   "icon": "assets/icon.svg",
   "permissions": {
     "access_client_kv": {
-      "description": "This permission is used to facilitate better a user experience.",
+      "description": "PostHog uses cookies to attribute sessions more accurately",
       "required": true
     },
     "server_network_requests": {
@@ -17,7 +17,7 @@
       "required": true
     },
     "provide_server_functionality": {
-      "description": "This permission is used to facilitate better a user experience.",
+      "description": "Allow PostHog to create a reverse proxy from '/track' to 'https://app.posthog.com' and define custom server side logic.",
       "required": true
     }
   }

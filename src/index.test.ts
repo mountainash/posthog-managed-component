@@ -4,7 +4,7 @@ beforeAll(() => {
   vi.stubGlobal('crypto', crypto)
 })
 
-describe('postman', () => {
+describe('posthog', () => {
   it('example test', () => {
     expect(true).toEqual(true)
   })
