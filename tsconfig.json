@@ -8,16 +8,24 @@
     "jsx": "react-jsx",
     "allowJs": true,
 
+    // MC Defaults
+    "resolveJsonModule": true,
+    "types": [
+      "vitest/globals"
+    ],
+
     // Bundler mode
-    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
     "noEmit": true,
+    "esModuleInterop": true,
 
     // Best practices
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
 
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
