@@ -9,11 +9,11 @@
 
     // MC Defaults
     "resolveJsonModule": true,
-    "types": ["vitest/globals"],
+    "types": ["bun-types", "vitest/globals"],
 
     // Bundler mode
     "outDir": "./components/posthog",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "esModuleInterop": true,

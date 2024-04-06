@@ -1,4 +1,4 @@
-name: 'Build Test'
+name: '🧪 Build Test'
 
 on:
   push:
@@ -8,18 +8,11 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
     steps:
-      - uses: actions/checkout@v2
-      - name: Running Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      # Actual Tests
-      - run: npm i
-      - run: npm run lint --if-present
-      - run: npm run typecheck --if-present
-      - run: npm run bundle --if-present
-      - run: npm run test --if-present
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run bundle
+      - run: bun run test

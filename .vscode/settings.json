@@ -19,5 +19,10 @@
     "titleBar.inactiveForeground": "#8f8f8b",
     "titleBar.border": "#dadbd2"
   },
-  "cSpell.words": ["ecommerce", "remarketing", "webcm"]
+  "cSpell.words": [
+    "ecommerce",
+    "remarketing",
+    "tseslint",
+    "webcm"
+  ]
 }
