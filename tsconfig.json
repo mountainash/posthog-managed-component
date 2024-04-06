@@ -5,17 +5,14 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
     "allowJs": true,
 
     // MC Defaults
     "resolveJsonModule": true,
-    "types": [
-      "vitest/globals"
-    ],
+    "types": ["vitest/globals"],
 
     // Bundler mode
-    "outDir": "./dist",
+    "outDir": "./components/posthog",
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "noEmit": true,

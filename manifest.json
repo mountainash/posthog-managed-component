@@ -3,6 +3,7 @@
   "namespace": "posthog",
   "description": "A managed component for PostHog analytics",
   "icon": "assets/icon.svg",
+  "allowCustomFields": true,
   "permissions": {
     "access_client_kv": {
       "description": "PostHog uses cookies to attribute sessions more accurately",

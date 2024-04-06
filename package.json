@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "A managed component for PostHog analytics",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mountainash/posthog-managed-component"
+  },
   "scripts": {
+    "dev": "node --watch esbuild.js",
     "lint": "eslint --ext .ts,.js, src",
     "lint:fix": "eslint --ext .ts,.js, src --fix",
     "bundle": "node esbuild.js",
@@ -15,15 +20,19 @@
   "keywords": [
     "webcm",
     "managed-components",
-    "posthog"
+    "posthog",
+    "analytics",
+    "cloudflare",
+    "workers",
+    "zaraz"
   ],
-  "author": "",
+  "author": "mountainash",
   "license": "Apache-2.0",
   "devDependencies": {
     "@managed-components/types": "^1.3.14",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "esbuild": "^0.20.2",
-    "eslint": "^8.57.0",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "ts-node": "^10.9.2",

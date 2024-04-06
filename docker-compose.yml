@@ -1,0 +1,11 @@
+version: '3.7'
+services:
+  webcm:
+    image: node:18
+    ports:
+      - 8080:8080
+      - 8787:8787
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npx webcm components/posthog/index.js

@@ -1,3 +1,5 @@
+webcm.config.ts
+
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
 # Logs
@@ -119,6 +121,7 @@ out
 
 .nuxt
 dist
+components
 
 # Gatsby files
 

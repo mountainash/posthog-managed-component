@@ -1,0 +1,30 @@
+export default {
+  // The Managed Components to load, with their settings and permissions
+  components: [
+    {
+      name: 'posthog',
+      settings: {
+        ecommerce: false,
+        POSTHOG_API_KEY: '******',
+        POSTHOG_PROJECT_ID: '******',
+        POSTHOG_URL: 'https://eu.posthog.com',
+      },
+      permissions: [
+        'access_client_kv',
+        'provide_server_functionality',
+        'provide_widget',
+        'serve_static_files',
+      ],
+    },
+  ],
+  // The target server URL to proxy
+  target: 'http://192.168.1.1:8080',
+  // The hostname to which WebCM should bind
+  hostname: 'webcm',
+  // The tracking URL will get all POST requests coming from `webcm.track`
+  trackPath: '/webcm/track',
+  // The port WebCM should listen to
+  port: 8787,
+  // Optional: hash key to make sure cookies set by WebCM aren't tampered with
+  cookiesKey: 'something-very-secret',
+}

@@ -6,5 +6,5 @@ require('esbuild').buildSync({
   format: 'esm',
   target: ['esnext'],
   tsconfig: 'tsconfig.build.json',
-  outfile: 'dist/index.js',
+  outfile: 'components/posthog/index.js',
 })
