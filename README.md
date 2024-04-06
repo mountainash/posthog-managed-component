@@ -34,9 +34,9 @@ Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-
 
 ## 🚀 Quickstart local dev environment
 
-1. Make sure you're running bun (any version) or NodeJS version >=18.
-2. Install dependencies with `bun i` or `npm i`
-3. Run unit test watcher with `bun run test:dev` or `npm run test:dev`
+1. Make sure you're running [Bun](https://bun.sh/)
+2. Install dependencies with `bun i`
+3. Run unit test watcher with `bun run test:dev`
 
 ## ⚙️ Tool Settings
 
