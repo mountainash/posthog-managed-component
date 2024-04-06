@@ -13,7 +13,6 @@ export default {
         'access_client_kv',
         'provide_server_functionality',
         'provide_widget',
-        'serve_static_files',
       ],
     },
   ],

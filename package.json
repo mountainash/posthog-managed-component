@@ -1,12 +1,15 @@
 {
   "name": "posthog",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A managed component for PostHog analytics",
   "main": "dist/index.js",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mountainash/posthog-managed-component"
+    "url": "git+https://github.com/mountainash/posthog-managed-component.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mountainash/posthog-managed-component/issues"
   },
   "scripts": {
     "dev": "bun build ./src/index.ts --watch",

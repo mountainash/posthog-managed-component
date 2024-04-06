@@ -2,7 +2,7 @@
 
 > A managed component for PostHog analytics
 
-Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/) (it's OSS so hopefully more use cases will come).
+Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/) (it's OSS so hopefully more use-cases will come).
 
 ![PostHog](assets/icon.svg)
 
@@ -20,7 +20,7 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 - [ ] add MC to <https://github.com/PostHog/integrations-repository/blob/main/integrations.json>
 - [ ] mention MC on [PostHog Docs](https://posthog.com/docs/advanced/proxy/cloudflare)
 - [ ] mention MC on [Discord](https://discord.com/channels/595317990191398933/917505178016579605/1225745641351675925)
-- [ ] use bun bundler
+- [x] use bun bundler [#1](https://github.com/mountainash/posthog-managed-component/issues/1)
 
 ## Documentation
 
@@ -28,11 +28,11 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 
 Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/) for inspiration and motivation details.
 
-[![Released under the Apache license.](https://img.shields.io/badge/license-apache-blue.svg)](./LICENSE)
-[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+[![Released under the Apache license](https://img.shields.io/badge/license-apache-blue.svg)](./LICENSE)
+[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mountainash/posthog-managed-component/pulls)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-## 🚀 Quickstart local dev environment
+## 🚀 Quickstart local DEV environment
 
 1. Make sure you're running [Bun](https://bun.sh/)
 2. Install dependencies with `bun i`
@@ -40,23 +40,13 @@ Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-
 
 ## ⚙️ Tool Settings
 
-> Settings are used to configure the tool in a Component Manager config file
+Settings are used to configure the tool in a [Component Manager config file](./webcm.config.ts.docker-example)
 
-### Example Setting `boolean`
+## 🧱 Fields Descriptions
 
-`exampleSetting` can be the pixelID or any other essential/optional setting like the option to anonymize IPs, send ecommerce events etc.
-
-## 🧱 Fields Description
-
-> Fields are properties that can/must be sent with certain events
-
-### Human Readable Field Name `type` _required_
-
-- **`POSTHOG_API_KEY`** personal PostHog API key
+- **`POSTHOG_API_KEY`** PostHog Personal API Key
 - **`POSTHOG_PROJECT_ID`** the ID of the project you want to send events to
 - **`POSTHOG_URL`** (optional) the URL of your PostHog instance (default: `https://app.posthog.com`)
-
-`field_id` give it a short description and send to a more detailed reference [Find more about how to create your own Managed Component](https://managedcomponents.dev/).
 
 ## Testing
 
@@ -83,8 +73,21 @@ docker compose up
 ## Deployment
 
 ```bash
-npx managed-component-to-cloudflare-worker ./index.js my-new-counter-mc
+bunx managed-component-to-cloudflare-worker ./components/posthog/index.js zaraz-posthog
 ```
+
+Then you can configure it as tool using the Cloudflare Zaraz Dashboard at <https://dash.cloudflare.com/?to=/:account/:zone/zaraz/tools-config/tools/catalog>, look for "Custom Managed Component" and select the `custom-mc-zaraz-posthog` tool. Set the Tool Name to "PostHog" & enable "E-commerce tracking"
+
+## Resources
+
+- [Managed Components docs](https://managedcomponents.dev/)
+- [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/)
+- [WebCM](https://webcm.dev/getting-started/install)
+- [Cloudflare Workers](https://developers.cloudflare.com/workers/)
+- [Blog: Open source Managed Components for Cloudflare Zaraz](https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/)
+- Support:
+  - [Cloudflare Workers Discord](https://discord.gg/cloudflaredev)
+  - <zaraz@cloudflare.com>
 
 ## 📝 License
 

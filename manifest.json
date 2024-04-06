@@ -2,7 +2,31 @@
   "name": "PostHog",
   "namespace": "posthog",
   "description": "A managed component for PostHog analytics",
+  "categories": ["Analytics"],
+  "provides": ["events"],
   "icon": "assets/icon.svg",
+  "fields": [
+    {
+      "name": "POSTHOG_API_KEY",
+      "type": "text",
+      "label": "PostHog Personal API Key",
+      "description": "Your PostHog API key. You can find this in your PostHog project settings",
+      "required": true
+    },
+    {
+      "name": "POSTHOG_PROJECT_ID",
+      "type": "text",
+      "label": "PostHog Project ID",
+      "description": "The ID of the PostHog Project you want to send events to"
+    },
+    {
+      "name": "POSTHOG_URL",
+      "type": "text",
+      "label": "PostHog Host",
+      "description": "The URL of your PostHog instance",
+      "default": "https://app.posthog.com"
+    }
+  ],
   "allowCustomFields": true,
   "permissions": {
     "access_client_kv": {
@@ -10,10 +34,6 @@
       "required": true
     },
     "server_network_requests": {
-      "description": "This permission is used to facilitate better a user experience.",
-      "required": true
-    },
-    "serve_static_files": {
       "description": "This permission is used to facilitate better a user experience.",
       "required": true
     },
