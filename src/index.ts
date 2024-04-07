@@ -1,203 +1,313 @@
-import { ComponentSettings, Manager } from '@managed-components/types'
+// Origin: https://github.com/managed-components/mixpanel/blob/3fff278131e62ed2e81eab54880753958a07fcc4/src/index.ts
 
-export default async function (manager: Manager, settings: ComponentSettings) {
-  if (!settings.POSTHOG_API_KEY) {
-    console.error('POSTHOG_API_KEY is required for the PostHog component')
-    return
+import {
+  ComponentSettings,
+  Manager,
+  MCEvent,
+  Client,
+} from '@managed-components/types'
+import UAParser from 'ua-parser-js'
+import { isValidHttpUrl } from './utils'
+
+const MC_COOKIE_NAME = 'mc_posthog'
+
+const getAPIEndpoint = (POSTHOG_URL: string) => {
+  POSTHOG_URL = POSTHOG_URL || 'https://us-proxy-direct.i.posthog.com'
+  return `${POSTHOG_URL}/capture/`
+}
+
+const handleCookieData = (client: Client, $identified_id?: string) => {
+  const cookie = client.get(MC_COOKIE_NAME)
+  let cookieData: { [k: string]: string | undefined } = {}
+
+  const setFreshCookie = () => {
+    const distinct_id = crypto.randomUUID()
+
+    cookieData = {
+      distinct_id,
+      $userId: $identified_id,
+    }
+
+    client.set(MC_COOKIE_NAME, encodeURIComponent(JSON.stringify(cookieData)), {
+      scope: 'infinite',
+    })
   }
 
-  console.info('PROJECT_ID:', settings.POSTHOG_API_KEY.slice(0, 12) + '...')
-
-  manager.addEventListener('clientcreated', ({ client }) => {
-    console.log('clientcreated!: 🐣')
-    const clientNumber = client.get('clientNumber')
-    if (!clientNumber) {
-      const num = Math.random()
-      client.set('clientNumber', num.toString())
+  if (cookie) {
+    try {
+      cookieData = JSON.parse(decodeURIComponent(cookie))
+    } catch {
+      setFreshCookie()
     }
-  })
 
-  manager.addEventListener('pageview', async event => {
-    const { client } = event
+    if (!cookieData?.distinct_id) {
+      setFreshCookie()
+    } else if ($identified_id && !cookieData['$userId']) {
+      // add userId to cookie if cookie already exists
+      cookieData['$userId'] = $identified_id
+      client.set(MC_COOKIE_NAME, encodeURIComponent(JSON.stringify(cookieData)))
+    }
+  } else {
+    setFreshCookie()
+  }
 
-    const options = {
+  return cookieData
+}
+
+const getTimestamp = (client: Client) => {
+  const ts = client.timestamp || Date.now()
+  return new Date(ts).toISOString()
+}
+
+const getDistinctId = (event: MCEvent) => {
+  const { client, payload } = event
+  const { $identified_id } = payload
+  const cookieData = handleCookieData(client, $identified_id)
+
+  return cookieData.$userId || cookieData.distinct_id || 'anonymous'
+}
+
+const getRequestBodyProperties = (event: MCEvent) => {
+  const { client } = event
+  const { browser, os, device } = new UAParser(
+    event.client.userAgent
+  ).getResult()
+
+  return {
+    ip: client.ip,
+    referrer: client.referer || 'unknown',
+    referring_domain: isValidHttpUrl(client.referer)
+      ? new URL(client.referer).host
+      : 'unknown',
+    current_page_title: client.title,
+    current_url: client.url.href,
+    current_domain: client.url.hostname,
+    current_url_path: client.url.pathname,
+    current_url_search: client.url.search,
+    screen_height: client.screenHeight,
+    screen_width: client.screenWidth,
+    browser: browser.name,
+    browser_version: browser.version,
+    os: os.name,
+    device: device.model,
+  }
+}
+
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+const fetchObject = (url: string, requestBody: any) => {
+  return {
+    url: getAPIEndpoint(url),
+    opts: {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        HTTP_X_FORWARDED_FOR: requestBody.properties.ip,
       },
-      body: JSON.stringify({
-        api_key: String(settings.POSTHOG_API_KEY),
-        event: 'request',
-        properties: {
-          distinct_id: client.get('clientNumber') || 'anonymous',
-        },
-      }),
-    }
+      body: JSON.stringify(requestBody),
+    },
+  }
+}
 
-    const url = settings.POSTHOG_URL || 'https://app.posthog.com'
+/* Fetch Events */
 
-    await fetch(`${url}/capture/`, options)
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      })
+export const getTrackEventArgs = (
+  settings: ComponentSettings,
+  event: MCEvent
+) => {
+  const customFields = event.payload
+  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
 
-    console.info(
-      '📄 Pageview received!',
-      client.get('clientNumber'),
-      client.get('user_id'),
-      client.get('last_page_title'),
-      client.get('session_id')
-    )
-    // const user_id = client.url.searchParams.get('user_id')
-    // client.set('user_id', user_id, {
-    //   scope: 'infinite',
-    // })
-    // if (client.get('clientNumber')) {
-    //   client.attachEvent('mousemove')
-    //   client.attachEvent('mousedown')
-    //   client.attachEvent('historyChange')
-    //   client.attachEvent('scroll')
-    //   client.attachEvent('resize')
-    //   client.attachEvent('resourcePerformanceEntry')
+  const properties = getRequestBodyProperties(event)
+  const distinctID = getDistinctId(event)
+  const timeStamp = getTimestamp(event.client)
+
+  const requestBody = {
+    api_key: POSTHOG_API_KEY,
+    event: event.type === 'pageview' ? '$pageview' : event.type,
+    timestamp: timeStamp,
+    distinct_id: distinctID,
+    properties: {
+      ...properties,
+      ...customFields,
+    },
+    // ref: https://posthog.com/docs/api/post-only-endpoints#single-event
+  }
+
+  return fetchObject(POSTHOG_URL, requestBody)
+}
+
+export const setAliasEventArgs = (
+  settings: ComponentSettings,
+  event: MCEvent
+) => {
+  const alias = event.payload
+  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
+
+  const distinctID = getDistinctId(event)
+  const timeStamp = getTimestamp(event.client)
+
+  const requestBody = {
+    api_key: POSTHOG_API_KEY,
+    event: '$create_alias',
+    timestamp: timeStamp,
+    distinct_id: distinctID,
+    properties: {
+      ...alias,
+    },
+    // ref: https://posthog.com/docs/api/post-only-endpoints#alias
+  }
+
+  return fetchObject(POSTHOG_URL, requestBody)
+}
+
+export const setIdentifyEventArgs = (
+  settings: ComponentSettings,
+  event: MCEvent
+) => {
+  const customFields = event.payload
+  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
+
+  const distinctID = getDistinctId(event)
+  const timeStamp = getTimestamp(event.client)
+
+  const requestBody = {
+    api_key: POSTHOG_API_KEY,
+    event: '$identify',
+    timestamp: timeStamp,
+    distinct_id: distinctID,
+    properties: {
+      ...customFields,
+    },
+    // ref: https://posthog.com/docs/api/post-only-endpoints#identify
+  }
+
+  return fetchObject(POSTHOG_URL, requestBody)
+}
+
+export const getAssignGroupPropertiesEventArgs = (
+  settings: ComponentSettings,
+  event: MCEvent
+) => {
+  const { $group_key, $group_name } = event.payload
+  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
+  const distinctID = getDistinctId(event)
+
+  const requestBody = {
+    api_key: POSTHOG_API_KEY,
+    event: '$event', // API's key
+    distinct_id: distinctID,
+    properties: {
+      $groups: { [$group_key]: $group_name }, // API's key
+    },
+  }
+
+  return fetchObject(POSTHOG_URL, requestBody)
+}
+
+export const getSetGroupPropertiesEventArgs = (
+  settings: ComponentSettings,
+  event: MCEvent
+) => {
+  const customFields = event.payload
+  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
+
+  const requestBody = {
+    api_key: POSTHOG_API_KEY,
+    event: '$groupidentify', // API's key
+    distinct_id: 'groups_setup_id',
+    properties: {
+      ...customFields,
+    },
+    // ref: https://posthog.com/docs/api/post-only-endpoints#group-identify
+    // Expected format for customFields:
+    // customFields = {
+    //   "$group_type": "<group_type>",
+    //   "$group_key": "<group_name>",
+    //   "$group_set": {
+    //     "name": "<group_name>",
+    //     "subscription": "premium"
+    //     "date_joined": "[optional timestamp in ISO 8601 format]"
+    //   }
     // }
-    // client.title &&
-    //   client.set('last_page_title', client.title, {
-    //     scope: 'page',
-    //   })
-    // client.set('session_id', 'session_date_' + new Date().toUTCString(), {
-    //   scope: 'session',
-    // })
-    // client.return('Some very important value')
-    // client.execute('console.info("Page view processed by Demo Component")')
-    // client.fetch('http://example.com', { mode: 'no-cors' })
+  }
+
+  return fetchObject(POSTHOG_URL, requestBody)
+}
+
+export default async (manager: Manager, settings: ComponentSettings) => {
+  // Log some useful info
+  console.info('🆕 Posthog component loaded')
+  console.info(
+    '⚙️ Component config. manager:',
+    JSON.stringify(manager, null, 2),
+    'settings:',
+    JSON.stringify(settings, null, 2)
+  )
+
+  // Event: pageview
+  manager.addEventListener('pageview', async (event: MCEvent) => {
+    console.info('"pageview" event received', JSON.stringify(event, null, 2))
+    const { url, opts } = getTrackEventArgs(settings, event)
+    // console.log('Sending:', url, opts)
+    const response = await manager.fetch(url, opts)
+    if (!response?.ok) {
+      console.error(
+        'Failed to send pageview',
+        response?.status,
+        response?.statusText
+      )
+    }
   })
 
-  // const myRoute = manager.route('/resetCache', (request: Request) => {
-  //   manager.invalidateCache('weather-Iceland')
-  //   manager.invalidateCache('weather-Tobago')
-  //   manager.invalidateCache('weather-Kyoto')
-  //   return new Response(`You made a ${request.method} request`)
-  // })
-  // console.log(':::: exposes an endpoint at', myRoute)
+  // Event: event
+  manager.addEventListener('event', async (event: MCEvent) => {
+    console.info('"event" event received', JSON.stringify(event, null, 2))
+    const { url, opts } = getTrackEventArgs(settings, event)
+    // console.log('Sending:', url, opts)
+    manager.fetch(url, opts)
+  })
 
-  //   const myProxiedRoute = manager.proxy('/gate/*', 'http://n-gate.com')
-  //   console.log(`:::: proxies ${myProxiedRoute} to http://n-gate.com`)
-  //
-  //   const myStaticFile = manager.serve('/cheese', 'assets/Camembert.jpg')
-  //   console.log(`:::: serves a file at ${myStaticFile}`)
+  // Event: track
+  manager.addEventListener('track', async (event: MCEvent) => {
+    console.info('"track" event received', JSON.stringify(event, null, 2))
+    const { url, opts } = getTrackEventArgs(settings, event)
+    // console.log('Sending:', url, opts)
+    const response = await manager.fetch(url, opts)
+    // console.log(response)
+    if (!response?.ok) {
+      console.error(
+        'Failed to send track',
+        response?.status,
+        response?.statusText
+      )
+    }
+  })
 
-  // if (settings.ecommerce) {
-  //   manager.addEventListener('ecommerce', event => {
-  //     console.log('event:', event)
-  //     if (event.name === 'Purchase') {
-  //       // TODO: Send the purchase event to the server
-  //       console.info('Ka-ching! 💰', event.payload)
-  //     }
-  //   })
-  // }
+  // Event: assign_alias
+  manager.addEventListener('assign_alias', (event: MCEvent) => {
+    console.info('"assign_alias" event received')
+    const { url, opts } = setAliasEventArgs(settings, event)
+    manager.fetch(url, opts)
+  })
 
-  // manager.addEventListener('request', event => {
-  //   console.log('event:', event.payload)
-  //   console.log('\u{1F6D2} 🧱 Triggered by every request')
-  // })
+  // Event: identify
+  manager.addEventListener('identify', (event: MCEvent) => {
+    console.info('"identify" event received')
+    const { url, opts } = setIdentifyEventArgs(settings, event)
+    manager.fetch(url, opts)
+  })
 
-  // manager.addEventListener('response', event => {
-  //   console.log('event:', event.payload)
-  //   console.log('\u{1F6D2} 🎁 Doing something on response')
-  // })
+  // Event: assign_group
+  manager.addEventListener('assign_group', (event: MCEvent) => {
+    console.info('"assign_group" event received')
+    const { url, opts } = getAssignGroupPropertiesEventArgs(settings, event)
+    manager.fetch(url, opts)
+  })
 
-  // manager.addEventListener('remarketing', event => {
-  //   console.log('event:', event.payload)
-  //   console.log('🛒 Remarketing event was sent to demo component')
-  // })
-
-  // manager.createEventListener('mousemove', async event => {
-  //   const { payload } = event
-  //   console.info('🐁 🪤 Mousemove:', JSON.stringify(payload, null, 2))
-  // })
-
-  // manager.createEventListener('mousedown', async event => {
-  //   // Save mouse coordinates as a cookie
-  //   const { client, payload } = event
-  //   console.info('🐁 ⬇️ Mousedown payload:', payload)
-  //   const [firstClick] = payload.mousedown
-  //   client.set('lastClickX', firstClick.clientX)
-  //   client.set('lastClickY', firstClick.clientY)
-  // })
-
-  // manager.createEventListener('historyChange', async event => {
-  //   console.info('📣 Ch Ch Ch Chaaanges to history detected!', event.payload)
-  // })
-
-  // manager.createEventListener('resize', async event => {
-  //   console.info('🪟 New window size!', JSON.stringify(event.payload, null, 2))
-  // })
-
-  // manager.createEventListener('scroll', async event => {
-  //   console.info(
-  //     '🛞🛞🛞 They see me scrollin...they hatin...',
-  //     JSON.stringify(event.payload, null, 2)
-  //   )
-  // })
-
-  // manager.createEventListener('resourcePerformanceEntry', async event => {
-  //   console.info(
-  //     'Witness the fitness - fresh resource performance entries',
-  //     JSON.stringify(event.payload, null, 2)
-  //   )
-  // })
-
-  //   manager.addEventListener('event', async event => {
-  //     const { client, payload } = event
-  //     if (payload.name === 'cheese') {
-  //       console.info('🧀🧀  cheese event! 🧀🧀')
-  //       client.execute('console.log("🧀🧀  cheese event! 🧀🧀")')
-  //     }
-  //     payload.user_id = client.get('user_id')
-  //
-  //     if (Object.keys(payload || {}).length) {
-  //       const params = new URLSearchParams(payload).toString()
-  //       manager.fetch(`http://www.example.com/?${params}`)
-  //     }
-  //   })
-
-  // manager.registerEmbed(
-  //   'weather-example',
-  //   async ({ parameters }: { parameters: { [k: string]: unknown } }) => {
-  //     const location = parameters['location']
-  //     const embed = await manager.useCache('weather-' + location, async () => {
-  //       try {
-  //         const response = await manager.fetch(
-  //           `https://wttr.in/${location}?format=j1`
-  //         )
-  //         const data = await response.json()
-  //         const [summary] = data.current_condition
-  //         const { temp_C } = summary
-  //         return `<p>Temperature in ${location} is: ${temp_C} &#8451;</p>`
-  //       } catch (error) {
-  //         console.error('error fetching weather for embed:', error)
-  //       }
-  //     })
-  //     return embed
-  //   }
-  // )
-
-  // manager.registerWidget(async () => {
-  //   const location = 'Colombia'
-  //   const widget = await manager.useCache('weather-' + location, async () => {
-  //     try {
-  //       const response = await manager.fetch(
-  //         `https://wttr.in/${location}?format=j1`
-  //       )
-  //       const data = await response.json()
-  //       const [summary] = data.current_condition
-  //       const { temp_C } = summary
-  //       return `<p>Temperature in ${location} is: ${temp_C} &#8451;</p>`
-  //     } catch (error) {
-  //       console.error('error fetching weather for widget:', error)
-  //     }
-  //   })
-  //   return widget
-  // })
+  // Event: set_group_property
+  manager.addEventListener('set_group_property', (event: MCEvent) => {
+    console.info('"set_group_property" event received')
+    const { url, opts } = getSetGroupPropertiesEventArgs(settings, event)
+    manager.fetch(url, opts)
+  })
 }

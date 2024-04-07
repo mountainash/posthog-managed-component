@@ -30,6 +30,13 @@ export default [
     },
   },
   {
+    files: ['**/*.js'],
+    rules: {
+      'no-undef': 'off',
+      'no-useless-escape': 'off',
+    },
+  },
+  {
     files: ['*d.ts'],
     rules: {
       'no-undef': 'off',

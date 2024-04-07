@@ -10,12 +10,12 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 
 - [x] pull users PostHog API key from environment
 - [x] send page views to PostHog
-  - [ ] send URL
-  - [ ] send referrer
-  - [ ] send title
-- [ ] send events to PostHog
-- [ ] send user data to PostHog
-- [ ] send custom data to PostHog
+  - [x] send URL
+  - [x] send referrer
+  - [x] send title
+- [x] send events to PostHog
+- [x] send user data to PostHog
+- [x] send custom data to PostHog
 - [ ] add MC to <https://managedcomponents.dev/components/>
 - [ ] add MC to <https://github.com/PostHog/integrations-repository/blob/main/integrations.json>
 - [ ] mention MC on [PostHog Docs](https://posthog.com/docs/advanced/proxy/cloudflare)
