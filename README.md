@@ -67,13 +67,13 @@ The PostHog API URL could be "eu.i.posthog.com" for the EU region or your self-h
 Using [WebCM](https://webcm.dev/getting-started/install) you are able to run the Managed Component locally.
 
 ```bash
-npx webcm components/posthog/index.js
+npx webcm dist/index.js
 ```
 
 **NOTE:** [WebCM](https://github.com/cloudflare/webcm) doesn't run on newer versions of NodeJS, so you may need to use `nvm` to switch to an older version or use the following Docker command
 
 ```bash
-docker run -v $PWD:/home/node/app/ -w /home/node/app/ -p 1337:1337 -p 8000:8000 node:18 npx webcm components/posthog/index.js
+docker run -v $PWD/docker/:/app/ -v $PWD/dist/:/app/components/posthog/ -w /app/ -p 8080:8080 -p 8787:8787 node:18 npx webcm ./components/posthog/index.js
 ```
 
 OR
@@ -82,12 +82,14 @@ OR
 docker compose up
 ```
 
-**NOTE:** If you are using Docker, you can access a running local site at <http://192.168.1.1:8080>, but you need to set `target:` to an address the container can connect to (`localhost` in the container, is not the same as `localhost` when called on your host) and `hostname: 'webcm'` in your [webcm.config.ts](./webcm.config.ts) file (see `./webcm.config.ts.docker-example`).
+The proxied local site will be available at <http://localhost:8787/>
+
+**NOTE:** If you are using Docker, you can access a running local site at <http://192.168.1.1:8080>, but you need to set `target:` to an address the container can connect to (`localhost` in the container, is not the same as `localhost` when called on your host) and `hostname: 'webcm'` in your [webcm.config.ts](./docker/webcm.config.ts) file (see `./docker/webcm.config.ts.docker-example` as a starting point and rename it to `webcm.config.ts`).
 
 ## Deployment
 
 ```bash
-bunx managed-component-to-cloudflare-worker ./components/posthog/index.js zaraz-posthog
+bunx managed-component-to-cloudflare-worker ./dist/index.js zaraz-posthog
 ```
 
 Then you can configure it as tool using the Cloudflare Zaraz Dashboard at <https://dash.cloudflare.com/?to=/:account/:zone/zaraz/tools-config/tools/catalog>, look for "Custom Managed Component" and select the `custom-mc-zaraz-posthog` tool. Set the Tool Name to "PostHog" & enable "E-commerce tracking"

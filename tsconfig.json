@@ -12,7 +12,7 @@
     "types": ["bun-types", "vitest/globals"],
 
     // Bundler mode
-    "outDir": "./components/posthog",
+    "outDir": "./dist",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,

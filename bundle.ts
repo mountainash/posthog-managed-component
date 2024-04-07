@@ -3,7 +3,7 @@ const result = await Bun.build({
   minify: true,
   format: 'esm',
   target: 'node',
-  outdir: './components/posthog',
+  outdir: './dist',
 })
 
 if (!result.success) {

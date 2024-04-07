@@ -7,5 +7,14 @@ services:
       - 8787:8787
     working_dir: /app
     volumes:
-      - .:/app
-    command: npx webcm components/posthog/index.js
+      - ./docker:/app/
+      - ./dist/:/app/components/posthog/
+    command: npx webcm ./components/posthog/index.js
+    # Can't use unless you have a local `build:` section
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: ./app/dist
+    #       target: /components/posthog/
+    #     - action: rebuild
+    #       path: /components/posthog/index.js
