@@ -7,7 +7,7 @@ export default {
         ecommerce: false,
         POSTHOG_API_KEY: '******',
         POSTHOG_PROJECT_ID: '******',
-        POSTHOG_URL: 'https://eu.posthog.com',
+        POSTHOG_URL: 'https://eu-proxy-direct.i.posthog.com',
       },
       permissions: [
         'access_client_kv',
