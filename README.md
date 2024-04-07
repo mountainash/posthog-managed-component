@@ -8,6 +8,7 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 
 ## TODO:
 
+- *Basics*
 - [x] pull users PostHog API key from environment
 - [x] send page views to PostHog
   - [x] send URL
@@ -16,10 +17,16 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 - [x] send events to PostHog
 - [x] send user data to PostHog
 - [x] send custom data to PostHog
-- [ ] add MC to <https://managedcomponents.dev/components/>
+- [ ] get Zaraz Settings passed in
+- *Extra Features*
+  - [ ] Session Replay
+  - [ ] Feature Flags
+  - [ ] A/B Testing
+  - [ ] Surveys
+- [x] [add MC to](https://github.com/managed-components/docs/pull/10) <https://managedcomponents.dev/components/>
 - [ ] add MC to <https://github.com/PostHog/integrations-repository/blob/main/integrations.json>
 - [ ] mention MC on [PostHog Docs](https://posthog.com/docs/advanced/proxy/cloudflare)
-- [ ] mention MC on [Discord](https://discord.com/channels/595317990191398933/917505178016579605/1225745641351675925)
+- [x] mention MC on [Discord](https://discord.com/channels/595317990191398933/917505178016579605/1225745641351675925)
 - [x] use bun bundler [#1](https://github.com/mountainash/posthog-managed-component/issues/1)
 
 ## Documentation

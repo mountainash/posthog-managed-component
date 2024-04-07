@@ -32,10 +32,12 @@ const dummyClient = {
   userAgent:
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
   language: 'en-GB',
-  referer: '',
+  referer: new URL('https://www.washingtonbrown.com.au/contact/'),
   ip: '127.0.0.1',
-  screenHeight: 1080,
   screenWidth: 2560,
+  screenHeight: 1080,
+  viewportWidth: 800,
+  viewportHeight: 600,
   fetch: () => undefined,
   set: () => undefined,
   execute: () => undefined,
@@ -86,17 +88,43 @@ describe('PostHog MC track event handler works correctly', () => {
       String(new Date(fakeEvent.client.timestamp).toISOString())
     )
     // expect(body?.properties?.$insert_id).toMatch(uuidPattern)
-    expect(body?.properties?.ip).toEqual(fakeEvent.client.ip)
-    expect(body?.properties?.referrer).toEqual('unknown')
-    expect(body?.properties?.referring_domain).toEqual('unknown')
-    expect(body?.properties?.current_url).toEqual(fakeEvent.client.url.href)
-    expect(body?.properties?.screen_height).toEqual(
+    expect(body?.properties?.$ip).toEqual(fakeEvent.client.ip)
+    expect(body?.properties?.$referrer).toEqual(fakeEvent.client.referer.href)
+    expect(body?.properties?.$referring_domain).toEqual(
+      fakeEvent.client.referer.hostname
+    ) // careful: different number of 'r's in referer/referrer
+    expect(body?.properties?.title).toEqual('Zaraz "Test" /t Page')
+    expect(body?.properties?.$current_url).toEqual(fakeEvent.client.url.href)
+    expect(body?.properties?.$host).toEqual(fakeEvent.client.url.hostname)
+    expect(body?.properties?.$pathname).toEqual(fakeEvent.client.url.pathname)
+    expect(body?.properties?.current_url_search).toEqual(
+      fakeEvent.client.url.search
+    )
+    expect(body?.properties?.$screen_width).toEqual(
+      fakeEvent.client.screenWidth
+    )
+    expect(body?.properties?.$screen_height).toEqual(
       fakeEvent.client.screenHeight
     )
-    expect(body?.properties?.screen_width).toEqual(fakeEvent.client.screenWidth)
-    expect(body?.properties?.browser).toEqual('Chrome')
-    expect(body?.properties?.browser_version).toEqual('108.0.0.0')
-    expect(body?.properties?.os).toEqual('Mac OS')
+    expect(body?.properties?.$viewport_width).toEqual(
+      fakeEvent.client.viewportWidth
+    )
+    expect(body?.properties?.$viewport_height).toEqual(
+      fakeEvent.client.viewportHeight
+    )
+    expect(body?.properties?.$raw_user_agent).toEqual(
+      fakeEvent.client.userAgent
+    )
+    expect(body?.properties?.$browser).toEqual('Chrome')
+    expect(body?.properties?.$browser_version).toEqual(108)
+    expect(body?.properties?.$browser_language).toEqual(
+      fakeEvent.client.language
+    )
+    expect(body?.properties?.$os).toEqual('Mac OS')
+    expect(body?.properties?.$os_version).toEqual('10.15.7')
+    expect(body?.properties?.device).toEqual('Macintosh')
+    expect(body?.properties?.$device_type).toEqual(undefined) // there's no Desktop type in UAParser
+    expect(body?.properties?.$lib).toEqual('webcm')
     expect(body?.properties?.someData).toEqual(fakeEvent.payload.someData)
   })
 

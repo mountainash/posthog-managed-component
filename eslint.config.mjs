@@ -37,9 +37,15 @@ export default [
     },
   },
   {
-    files: ['*d.ts'],
+    files: ['**/*d.ts'],
     rules: {
       'no-undef': 'off',
+    },
+  },
+  {
+    files: ['**/*test.ts'],
+    rules: {
+      'no-console': 'error',
     },
   },
   // ref: https://github.com/prettier/eslint-plugin-prettier?tab=readme-ov-file#configuration-new-eslintconfigjs

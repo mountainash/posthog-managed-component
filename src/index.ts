@@ -11,11 +11,6 @@ import { isValidHttpUrl } from './utils'
 
 const MC_COOKIE_NAME = 'mc_posthog'
 
-const getAPIEndpoint = (POSTHOG_URL: string) => {
-  POSTHOG_URL = POSTHOG_URL || 'https://us-proxy-direct.i.posthog.com'
-  return `${POSTHOG_URL}/capture/`
-}
-
 const handleCookieData = (client: Client, $identified_id?: string) => {
   const cookie = client.get(MC_COOKIE_NAME)
   let cookieData: { [k: string]: string | undefined } = {}
@@ -74,36 +69,52 @@ const getRequestBodyProperties = (event: MCEvent) => {
   ).getResult()
 
   return {
-    ip: client.ip,
-    referrer: client.referer || 'unknown',
-    referring_domain: isValidHttpUrl(client.referer)
-      ? new URL(client.referer).host
+    $ip: client.ip,
+    $referrer: client.referer,
+    $referring_domain: isValidHttpUrl(client.referer)
+      ? new URL(client.referer).hostname
       : 'unknown',
-    current_page_title: client.title,
-    current_url: client.url.href,
-    current_domain: client.url.hostname,
-    current_url_path: client.url.pathname,
+    title: client.title,
+    $current_url: client.url.href,
+    $host: client.url.hostname,
+    $pathname: client.url.pathname,
     current_url_search: client.url.search,
-    screen_height: client.screenHeight,
-    screen_width: client.screenWidth,
-    browser: browser.name,
-    browser_version: browser.version,
-    os: os.name,
+    $screen_width: client.screenWidth,
+    $screen_height: client.screenHeight,
+    $viewport_width: client.viewportWidth,
+    $viewport_height: client.viewportHeight,
+    $raw_user_agent: client.userAgent,
+    $browser: browser.name,
+    $browser_version: Number(browser.version?.split('.')[0]),
+    $browser_language: client.language,
+    $os: os.name,
+    $os_version: os.version,
     device: device.model,
+    $device_type: device.type,
+    $lib: 'webcm',
   }
 }
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-const fetchObject = (url: string, requestBody: any) => {
+const fetchObject = (settings: ComponentSettings, requestBody: any) => {
+  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
+
+  const protocolhostname =
+    POSTHOG_URL || 'https://us-proxy-direct.i.posthog.com'
+  const endpoint = `${protocolhostname}/capture/`
+
   return {
-    url: getAPIEndpoint(url),
+    url: endpoint,
     opts: {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        HTTP_X_FORWARDED_FOR: requestBody.properties.ip,
+        HTTP_X_FORWARDED_FOR: requestBody.properties['$ip'] || '1.1.1.1',
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        api_key: POSTHOG_API_KEY,
+        ...requestBody,
+      }),
     },
   }
 }
@@ -115,14 +126,12 @@ export const getTrackEventArgs = (
   event: MCEvent
 ) => {
   const customFields = event.payload
-  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
 
   const properties = getRequestBodyProperties(event)
   const distinctID = getDistinctId(event)
   const timeStamp = getTimestamp(event.client)
 
   const requestBody = {
-    api_key: POSTHOG_API_KEY,
     event: event.type === 'pageview' ? '$pageview' : event.type,
     timestamp: timeStamp,
     distinct_id: distinctID,
@@ -133,7 +142,7 @@ export const getTrackEventArgs = (
     // ref: https://posthog.com/docs/api/post-only-endpoints#single-event
   }
 
-  return fetchObject(POSTHOG_URL, requestBody)
+  return fetchObject(settings, requestBody)
 }
 
 export const setAliasEventArgs = (
@@ -141,13 +150,11 @@ export const setAliasEventArgs = (
   event: MCEvent
 ) => {
   const alias = event.payload
-  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
 
   const distinctID = getDistinctId(event)
   const timeStamp = getTimestamp(event.client)
 
   const requestBody = {
-    api_key: POSTHOG_API_KEY,
     event: '$create_alias',
     timestamp: timeStamp,
     distinct_id: distinctID,
@@ -157,7 +164,7 @@ export const setAliasEventArgs = (
     // ref: https://posthog.com/docs/api/post-only-endpoints#alias
   }
 
-  return fetchObject(POSTHOG_URL, requestBody)
+  return fetchObject(settings, requestBody)
 }
 
 export const setIdentifyEventArgs = (
@@ -165,13 +172,11 @@ export const setIdentifyEventArgs = (
   event: MCEvent
 ) => {
   const customFields = event.payload
-  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
 
   const distinctID = getDistinctId(event)
   const timeStamp = getTimestamp(event.client)
 
   const requestBody = {
-    api_key: POSTHOG_API_KEY,
     event: '$identify',
     timestamp: timeStamp,
     distinct_id: distinctID,
@@ -181,7 +186,7 @@ export const setIdentifyEventArgs = (
     // ref: https://posthog.com/docs/api/post-only-endpoints#identify
   }
 
-  return fetchObject(POSTHOG_URL, requestBody)
+  return fetchObject(settings, requestBody)
 }
 
 export const getAssignGroupPropertiesEventArgs = (
@@ -189,11 +194,9 @@ export const getAssignGroupPropertiesEventArgs = (
   event: MCEvent
 ) => {
   const { $group_key, $group_name } = event.payload
-  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
   const distinctID = getDistinctId(event)
 
   const requestBody = {
-    api_key: POSTHOG_API_KEY,
     event: '$event', // API's key
     distinct_id: distinctID,
     properties: {
@@ -201,7 +204,7 @@ export const getAssignGroupPropertiesEventArgs = (
     },
   }
 
-  return fetchObject(POSTHOG_URL, requestBody)
+  return fetchObject(settings, requestBody)
 }
 
 export const getSetGroupPropertiesEventArgs = (
@@ -209,10 +212,8 @@ export const getSetGroupPropertiesEventArgs = (
   event: MCEvent
 ) => {
   const customFields = event.payload
-  const { POSTHOG_URL, POSTHOG_API_KEY } = settings
 
   const requestBody = {
-    api_key: POSTHOG_API_KEY,
     event: '$groupidentify', // API's key
     distinct_id: 'groups_setup_id',
     properties: {
@@ -231,7 +232,7 @@ export const getSetGroupPropertiesEventArgs = (
     // }
   }
 
-  return fetchObject(POSTHOG_URL, requestBody)
+  return fetchObject(settings, requestBody)
 }
 
 export default async (manager: Manager, settings: ComponentSettings) => {
@@ -248,7 +249,7 @@ export default async (manager: Manager, settings: ComponentSettings) => {
   manager.addEventListener('pageview', async (event: MCEvent) => {
     console.info('"pageview" event received', JSON.stringify(event, null, 2))
     const { url, opts } = getTrackEventArgs(settings, event)
-    // console.log('Sending:', url, opts)
+    console.log('Sending:', url, opts)
     const response = await manager.fetch(url, opts)
     if (!response?.ok) {
       console.error(
