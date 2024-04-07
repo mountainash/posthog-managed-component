@@ -40,13 +40,27 @@ Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-
 
 ## ⚙️ Tool Settings
 
-Settings are used to configure the tool in a [Component Manager config file](./webcm.config.ts.docker-example)
+> Settings are used to configure the tool in a [Component Manager config file](./webcm.config.ts.docker-example)
 
-## 🧱 Fields Descriptions
+### PostHog API Key `string`
 
-- **`POSTHOG_API_KEY`** PostHog Personal API Key
-- **`POSTHOG_PROJECT_ID`** the ID of the project you want to send events to
-- **`POSTHOG_URL`** (optional) the URL of your PostHog instance (default: `https://app.posthog.com`)
+The PostHog project API Key is the unique write-only key of your PostHog project. [How to find your Project API Key](https://app.posthog.com/project/settings)
+
+### PostHog Project ID `string`
+
+The PostHog Project ID is the unique reference of your PostHog project. [How to find your Project ID](https://app.posthog.com/project/settings)
+
+### PostHog URL `string`
+
+The PostHog API URL could be "eu.i.posthog.com" for the EU region or your self-hosted URL. Defaults to `https://us.i.posthog.com`
+
+## 🧱 Fields Description
+
+> Fields are properties that can/must be sent with certain events
+
+### Track event name `string`
+
+`event` is the event name that will be sent with a Track event. [Learn more](https://posthog.com/tutorials/api-capture-events)
 
 ## Testing
 
