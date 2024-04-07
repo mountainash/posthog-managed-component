@@ -17,7 +17,7 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 - [x] send events to PostHog
 - [x] send user data to PostHog
 - [x] send custom data to PostHog
-- [ ] get Zaraz Settings passed in
+- [ ] get Zaraz Settings variable values passing in to `settings` object
 - *Extra Features*
   - [ ] Session Replay
   - [ ] Feature Flags

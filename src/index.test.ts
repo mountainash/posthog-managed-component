@@ -12,7 +12,7 @@ import {
 
 const settings = {
   POSTHOG_API_KEY: '12345',
-  POSTHOG_URL: 'https://us-proxy-direct.i.posthog.com',
+  POSTHOG_URL: 'https://us.i.posthog.com',
   MC_COOKIE_NAME: 'mc_posthog',
 }
 

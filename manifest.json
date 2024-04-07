@@ -24,7 +24,7 @@
       "type": "text",
       "label": "PostHog Host",
       "description": "The URL of your PostHog instance",
-      "default": "https://us-proxy-direct.i.posthog.com"
+      "default": "https://us.i.posthog.com"
     }
   ],
   "allowCustomFields": true,
@@ -38,7 +38,7 @@
       "required": true
     },
     "provide_server_functionality": {
-      "description": "Allow PostHog to create a reverse proxy from '/track' to 'https://us-proxy-direct.i.posthog.com' and define custom server side logic.",
+      "description": "Allow PostHog to create a reverse proxy from '/track' to 'https://us.i.posthog.com' and define custom server side logic.",
       "required": true
     }
   }

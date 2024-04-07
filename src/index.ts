@@ -51,7 +51,8 @@ const handleCookieData = (client: Client, $identified_id?: string) => {
 
 const getTimestamp = (client: Client) => {
   const ts = client.timestamp || Date.now()
-  return new Date(ts).toISOString()
+  const timestamp = ts < 1000000000000 ? ts * 1000 : ts
+  return new Date(timestamp).toISOString()
 }
 
 const getDistinctId = (event: MCEvent) => {
@@ -95,12 +96,12 @@ const getRequestBodyProperties = (event: MCEvent) => {
   }
 }
 
+// Build the fetch object
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 const fetchObject = (settings: ComponentSettings, requestBody: any) => {
   const { POSTHOG_URL, POSTHOG_API_KEY } = settings
 
-  const protocolhostname =
-    POSTHOG_URL || 'https://us-proxy-direct.i.posthog.com'
+  const protocolhostname = POSTHOG_URL || 'https://us.i.posthog.com'
   const endpoint = `${protocolhostname}/capture/`
 
   return {
@@ -237,13 +238,13 @@ export const getSetGroupPropertiesEventArgs = (
 
 export default async (manager: Manager, settings: ComponentSettings) => {
   // Log some useful info
-  console.info('🆕 Posthog component loaded')
-  console.info(
-    '⚙️ Component config. manager:',
-    JSON.stringify(manager, null, 2),
-    'settings:',
-    JSON.stringify(settings, null, 2)
-  )
+  // console.info('🆕 Posthog component loaded')
+  // console.info(
+  //   '⚙️ Component config. manager:',
+  //   JSON.stringify(manager, null, 2),
+  //   'settings:',
+  //   JSON.stringify(settings, null, 2)
+  // )
 
   // Event: pageview
   manager.addEventListener('pageview', async (event: MCEvent) => {
@@ -251,6 +252,12 @@ export default async (manager: Manager, settings: ComponentSettings) => {
     const { url, opts } = getTrackEventArgs(settings, event)
     console.log('Sending:', url, opts)
     const response = await manager.fetch(url, opts)
+    console.log(
+      'PostHog Response:',
+      response?.status,
+      response?.statusText,
+      JSON.stringify(response, null, 2)
+    )
     if (!response?.ok) {
       console.error(
         'Failed to send pageview',
@@ -274,7 +281,7 @@ export default async (manager: Manager, settings: ComponentSettings) => {
     const { url, opts } = getTrackEventArgs(settings, event)
     // console.log('Sending:', url, opts)
     const response = await manager.fetch(url, opts)
-    // console.log(response)
+    // console.log('PostHog Response:', response?.status, response?.statusText, JSON.stringify(response, null, 2))
     if (!response?.ok) {
       console.error(
         'Failed to send track',
