@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-// Origin: https://github.com/managed-components/PostHog/blob/3fff278131e62ed2e81eab54880753958a07fcc4/src/index.test.ts
+// Origin: https://github.com/managed-components/mixpanel/blob/3fff278131e62ed2e81eab54880753958a07fcc4/src/index.test.ts
 
 import { MCEvent } from '@managed-components/types'
 import {

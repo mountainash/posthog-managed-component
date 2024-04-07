@@ -89,6 +89,8 @@ The proxied local site will be available at <http://localhost:8787/>
 ## Deployment
 
 ```bash
+bun run release
+OR
 bunx managed-component-to-cloudflare-worker ./dist/index.js zaraz-posthog
 ```
 

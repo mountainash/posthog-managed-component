@@ -20,6 +20,7 @@
     "typecheck": "tsc --project ./tsconfig.build.json --noEmit",
     "test": "vitest run --globals",
     "test:dev": "vitest --globals",
+    "release": "bun run build && bunx managed-component-to-cloudflare-worker ./dist/index.js zaraz-posthog"
   },
   "keywords": [
     "webcm",
