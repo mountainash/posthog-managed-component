@@ -2,13 +2,44 @@
 
 > A managed component for PostHog analytics
 
-Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/) (it's OSS so hopefully more use-cases will come).
+Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/) (it's OSS so hopefully more operators will come).
 
 ![PostHog](assets/icon.svg)
 
+## How to use
+
+### Zaraz / Cloudflare Worker
+
+Until this component is an "official" Managed Component we need to manually host the MC in a Cloudflare Worker. Fortunately this is easy with a pre-built script to package this "[posthog-managed-component](https://github.com/mountainash/posthog-managed-component)" and upload it as a Worker.
+
+1. From [this projects GitHub root](https://github.com/mountainash/posthog-managed-component), expand the green **Code** button
+2. Choose the **Codespaces** tab
+3. Click **Create codespace on develop**
+4. At the Terminal command line enter `curl -fsSL https://bun.sh/install | bash` and press enter to install Bun into the Codespace VM
+5. Enter `source /home/codespace/.bashrc` and press enter to allow `bun` commands
+6. Enter `bun install` to setup the dependencies
+7. Enter `CLOUDFLARE_ACCOUNT_ID=<YOUR_ACCOUNT_ID_VALUE>
+CLOUDFLARE_API_TOKEN=<YOUR_API_TOKEN_VALUE>
+CLOUDFLARE_EMAIL=<YOUR_EMAIL> bun run release` to run the pre-made script to build the code and add it to a new Cloudflare Worker. Replace obvious placeholders with details from your Cloudflare account. [Help?](https://developers.cloudflare.com/workers/wrangler/system-environment-variables/#supported-environment-variables)
+8. Follow the prompts to setup the Worker. For the "Does your component use any of these methods" question you can answer `n` (no)
+9. Once complete, you can stop your Github Codespace
+10. Login to the Cloudflare dash, and go to the [Zaraz Dashboard](https://dash.cloudflare.com/?to=/:account/:zone/zaraz/tools-config/tools/catalog)
+11. From the new tools screen, choose **Custom Managed Component**
+12. In the modal proceed to the **Select Custom MC** screen and choose `custom-mc-zaraz-posthog` from the list (this is your Worker that was just uploaded/created)
+13. On the **Grant permissions** screen all permissions can be unset except **Server network requests** - this is needed to send requests to PostHog. Enable **Access client key-value store** if you want analytics to collated to a user over multiple sessions, else every session (even by the same user) will be logged as a new unique user
+14. On the **Last step** screen change the tool name to **PostHog Managed Component**
+    - Click the first **Add Field** button in the **Settings** section
+    - Add a new custom field named `POSTHOG_API_KEY`
+    - Click **Confirm**
+    - In the value field enter your **Project API Key** (_not your personal API key_). You can find this in your PostHog project settings
+    - _(optional)_ add another custom settings field with a name of `POSTHOG_URL` if your PostHog instance is not in the US. If your PostHog Project Settings say **EU Cloud** set this to `https://eu.i.posthog.com` (no trailing-slash)
+15. Click **Save** to enable your new Zaraz Posthog Managed Component
+
+Pageview's will now be tracked for all "orange cloud" enabled domains on your account (unless you have a Rule overriding this). You can also use use the [`zaraz.track()`](https://developers.cloudflare.com/zaraz/web-api/track/) in your website/webapp code to trigger for custom events.
+
 ## TODO:
 
-- *Basics*
+### Basics
 - [x] pull users PostHog API key from environment
 - [x] send page views to PostHog
   - [x] send URL
@@ -17,33 +48,21 @@ Common use is currently for [Cloudflare Zaraz](https://www.cloudflare.com/applic
 - [x] send events to PostHog
 - [x] send user data to PostHog
 - [x] send custom data to PostHog
-- [ ] get Zaraz Settings variable values passing in to `settings` object
-- *Extra Features*
-  - [ ] Session Replay
-  - [ ] Feature Flags
-  - [ ] A/B Testing
-  - [ ] Surveys
+- [ ] get Zaraz Settings variable values passing in to `settings` object [known issue?](https://discord.com/channels/595317990191398933/1225979924628766823/1226893601590481066)
+
+### Extra Features
+- [ ] Session Replay
+- [ ] Feature Flags
+- [ ] A/B Testing
+- [ ] Surveys
+
+### Discovery
 - [x] [add MC to](https://github.com/managed-components/docs/pull/10) <https://managedcomponents.dev/components/>
 - [ ] add MC to <https://github.com/PostHog/integrations-repository/blob/main/integrations.json>
 - [ ] mention MC on [PostHog Docs](https://posthog.com/docs/advanced/proxy/cloudflare)
-- [x] mention MC on [Discord](https://discord.com/channels/595317990191398933/917505178016579605/1225745641351675925)
+  - [ ] & [here](https://github.com/PostHog/integrations-repository/blob/main/integrations.json)
+- [x] mention MC on [Discord](https://discord.com/channels/595317990191398933/917505178016579605/1227513906381983745)
 - [x] use bun bundler [#1](https://github.com/mountainash/posthog-managed-component/issues/1)
-
-## Documentation
-
-[Managed Components docs](https://managedcomponents.dev/)
-
-Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/) for inspiration and motivation details.
-
-[![Released under the Apache license](https://img.shields.io/badge/license-apache-blue.svg)](./LICENSE)
-[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mountainash/posthog-managed-component/pulls)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-
-## 🚀 Quickstart local DEV environment
-
-1. Make sure you're running [Bun](https://bun.sh/)
-2. Install dependencies with `bun i`
-3. Run unit test watcher with `bun run test:dev`
 
 ## ⚙️ Tool Settings
 
@@ -68,6 +87,16 @@ The PostHog API URL could be "eu.i.posthog.com" for the EU region or your self-h
 ### Track event name `string`
 
 `event` is the event name that will be sent with a Track event. [Learn more](https://posthog.com/tutorials/api-capture-events)
+
+## Component Development
+
+[![Released under the Apache license](https://img.shields.io/badge/license-apache-blue.svg)](./LICENSE)
+[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mountainash/posthog-managed-component/pulls)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
+1. Make sure you're running [Bun](https://bun.sh/)
+2. Install dependencies with `bun i`
+3. Run unit test watcher with `bun run test:dev`
 
 ## Testing
 
