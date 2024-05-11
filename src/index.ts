@@ -133,7 +133,7 @@ export const getTrackEventArgs = (
   const timeStamp = getTimestamp(event.client)
 
   const requestBody = {
-    event: event.type === 'pageview' ? '$pageview' : event.type,
+    event: event.type === 'pageview' ? '$pageview' : event.name,
     timestamp: timeStamp,
     distinct_id: distinctID,
     properties: {
