@@ -48,7 +48,7 @@ Pageview's will now be tracked for all "orange cloud" enabled domains on your ac
 - [x] send events to PostHog
 - [x] send user data to PostHog
 - [x] send custom data to PostHog
-- [ ] get Zaraz Settings variable values passing in to `settings` object [known issue?](https://discord.com/channels/595317990191398933/1225979924628766823/1226893601590481066)
+- [ ] get Zaraz Settings variable values passing in to `settings` object ([known issue with Zaraz?](https://discord.com/channels/595317990191398933/1225979924628766823/1226893601590481066))
 
 ### Extra Features
 - [ ] Session Replay
