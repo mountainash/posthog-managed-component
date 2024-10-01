@@ -186,8 +186,9 @@ export const setIdentifyEventArgs = (
   const requestBody = {
     event: '$identify',
     timestamp: timeStamp,
-    distinct_id: distinctID,
+    distinct_id: customFields.distinct_id || distinctID,
     properties: {
+      $anon_distinct_id: distinctID,
       ...customFields,
     },
     // ref: https://posthog.com/docs/api/post-only-endpoints#identify
@@ -298,28 +299,28 @@ export default async (manager: Manager, settings: ComponentSettings) => {
   })
 
   // Event: assign_alias
-  manager.addEventListener('assign_alias', (event: MCEvent) => {
+  manager.addEventListener('assign_alias', async (event: MCEvent) => {
     console.info('"assign_alias" event received')
     const { url, opts } = setAliasEventArgs(settings, event)
     manager.fetch(url, opts)
   })
 
   // Event: identify
-  manager.addEventListener('identify', (event: MCEvent) => {
+  manager.addEventListener('identify', async (event: MCEvent) => {
     console.info('"identify" event received')
     const { url, opts } = setIdentifyEventArgs(settings, event)
     manager.fetch(url, opts)
   })
 
   // Event: assign_group
-  manager.addEventListener('assign_group', (event: MCEvent) => {
+  manager.addEventListener('assign_group', async (event: MCEvent) => {
     console.info('"assign_group" event received')
     const { url, opts } = getAssignGroupPropertiesEventArgs(settings, event)
     manager.fetch(url, opts)
   })
 
   // Event: set_group_property
-  manager.addEventListener('set_group_property', (event: MCEvent) => {
+  manager.addEventListener('set_group_property', async (event: MCEvent) => {
     console.info('"set_group_property" event received')
     const { url, opts } = getSetGroupPropertiesEventArgs(settings, event)
     manager.fetch(url, opts)

@@ -37,6 +37,8 @@ CLOUDFLARE_EMAIL=<YOUR_EMAIL> bun run release` to run the pre-made script to bui
 
 Pageview's will now be tracked for all "orange cloud" enabled domains on your account (unless you have a Rule overriding this). You can also use use the [`zaraz.track()`](https://developers.cloudflare.com/zaraz/web-api/track/) in your website/webapp code to trigger for custom events.
 
+You can use `zaraz.track('identify', { distinct_id: 'data' })` to associate a user identifier of your choice to previously anonymous (and future) logs from the same user.
+
 ## TODO:
 
 ### Basics
