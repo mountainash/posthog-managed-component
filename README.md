@@ -66,9 +66,11 @@ You can use `zaraz.track('identify', { distinct_id: 'data' })` to associate a us
 - [x] mention MC on [Discord](https://discord.com/channels/595317990191398933/917505178016579605/1227513906381983745)
 - [x] use bun bundler [#1](https://github.com/mountainash/posthog-managed-component/issues/1)
 
+# PostHog Managed Component
+
 ## ⚙️ Tool Settings
 
-> Settings are used to configure the tool in a [Component Manager config file](./webcm.config.ts.docker-example)
+> Settings are used to configure the tool in a [Component Manager config file](./docker/webcm.config.ts.docker-example)
 
 ### PostHog API Key `string`
 
@@ -122,7 +124,7 @@ docker compose up
 
 The proxied local site will be available at <http://localhost:8787/>
 
-**NOTE:** If you are using Docker, you can access a running local site at <http://192.168.1.1:8080>, but you need to set `target:` to an address the container can connect to (`localhost` in the container, is not the same as `localhost` when called on your host) and `hostname: 'webcm'` in your [webcm.config.ts](./docker/webcm.config.ts) file (see `./docker/webcm.config.ts.docker-example` as a starting point and rename it to `webcm.config.ts`).
+**NOTE:** If you are using Docker, you can access a running local site at <http://192.168.1.1:8080>, but you need to set `target:` to an address the container can connect to (`localhost` in the container, is not the same as `localhost` when called on your host) and `hostname: 'webcm'` in your `webcm.config.ts` file (see `./docker/webcm.config.ts.docker-example` as a starting point and rename it to `webcm.config.ts`).
 
 ## Deployment
 
@@ -137,7 +139,7 @@ Then you can configure it as tool using the Cloudflare Zaraz Dashboard at <https
 ## Resources
 
 - [Managed Components docs](https://managedcomponents.dev/)
-- [Cloudflare Zaraz](https://www.cloudflare.com/application-services/products/zaraz/)
+- [Cloudflare Zaraz](https://developers.cloudflare.com/zaraz/)
 - [WebCM](https://webcm.dev/getting-started/install)
 - [Cloudflare Workers](https://developers.cloudflare.com/workers/)
 - [Blog: Open source Managed Components for Cloudflare Zaraz](https://blog.cloudflare.com/zaraz-open-source-managed-components-and-webcm/)
