@@ -16,8 +16,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "bundle": "bun run ./bundle.ts",
-    "build": "bun run test && bun run lint && bun run typecheck && bun run bundle",
-    "typecheck": "tsc --project ./tsconfig.build.json --noEmit",
+    "build": " bun run lint && bun run typecheck && bun run test && bun run bundle",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run --globals",
     "test:dev": "vitest --globals",
     "release": "bun run build && bunx managed-component-to-cloudflare-worker ./dist/index.js zaraz-posthog"
