@@ -1,9 +1,0 @@
-src
-eslint.config.js
-.github/*
-.prettierrc
-.prettierignore
-tsconfig.build.json
-tsconfig.json
-vitetest.config.ts
-docker-compose.yml

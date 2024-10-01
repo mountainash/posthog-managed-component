@@ -34,6 +34,7 @@ export default [
     rules: {
       'no-undef': 'off',
       'no-useless-escape': 'off',
+      'no-prototype-builtins': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
