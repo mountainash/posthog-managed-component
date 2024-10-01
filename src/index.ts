@@ -132,8 +132,14 @@ export const getTrackEventArgs = (
   const distinctID = getDistinctId(event)
   const timeStamp = getTimestamp(event.client)
 
+  const eventName = () => {
+    if (event.type === 'pageview') return '$pageview'
+    if (event.name) return event.name
+    return event.type
+  }
+
   const requestBody = {
-    event: event.type === 'pageview' ? '$pageview' : event.type,
+    event: eventName(),
     timestamp: timeStamp,
     distinct_id: distinctID,
     properties: {
