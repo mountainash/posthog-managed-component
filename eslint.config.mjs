@@ -4,7 +4,7 @@ import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
+/** @type {import("eslint").Linter.Config[]} */
 export default [
   js.configs.recommended,
   eslint.configs.recommended,
@@ -34,6 +34,7 @@ export default [
     rules: {
       'no-undef': 'off',
       'no-useless-escape': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
   {

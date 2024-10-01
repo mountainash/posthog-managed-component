@@ -1,6 +1,6 @@
 // Origin: https://github.com/managed-components/mixpanel/blob/3fff278131e62ed2e81eab54880753958a07fcc4/src/index.ts
 
-import {
+import type {
   ComponentSettings,
   Manager,
   MCEvent,
