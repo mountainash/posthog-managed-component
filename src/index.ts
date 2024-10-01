@@ -186,8 +186,9 @@ export const setIdentifyEventArgs = (
   const requestBody = {
     event: '$identify',
     timestamp: timeStamp,
-    distinct_id: distinctID,
+    distinct_id: customFields.distinct_id || distinctID,
     properties: {
+      $anon_distinct_id: distinctID,
       ...customFields,
     },
     // ref: https://posthog.com/docs/api/post-only-endpoints#identify
